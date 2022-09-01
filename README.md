@@ -6,7 +6,7 @@ Deploy Jenkins to AWS EC2 instance.
 
 1. Generate ssh key pairs
    ```bash
-    ssh-keygen -t ed25519 -f key
+    ssh-keygen -t ed25519 -f <FILE NAME>
    ```
 2. Create EC2 instance and deploy Jenkins
    ```bash

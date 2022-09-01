@@ -1,6 +1,8 @@
 # [Jenkins on AWS](https://www.jenkins.io/doc/tutorials/tutorial-for-installing-jenkins-on-AWS)
 
-Deploy Jenkins in AWS EC2 instance.
+Deploy Jenkins to AWS EC2 instance.
+
+## Getting Started
 
 1. Generate ssh key pairs
    ```bash
@@ -8,5 +10,5 @@ Deploy Jenkins in AWS EC2 instance.
    ```
 2. Create EC2 instance and deploy Jenkins
    ```bash
-     terraform apply -var aws_profile="default" aws_region="ap-south-1" path_to_public_key="key.pub"
+     terraform apply -var aws_profile=<AWS PROFILE> -var aws_region=<AWS REGION> -var path_to_public_key=<PATH TO PUBLIC KEY>
    ```

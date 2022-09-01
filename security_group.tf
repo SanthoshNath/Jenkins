@@ -19,7 +19,7 @@ resource "aws_security_group" "jenkins_security_group" {
     from_port   = var.jenkins_port
     to_port     = var.jenkins_port
     protocol    = "tcp"
-    cidr_blocks = var.ingress_cidr_blocks_for_jenkins_port
+    cidr_blocks = var.expose_jenkins_url ? var.ingress_cidr_blocks_for_jenkins_port : [local.myIP]
   }
 
   tags = {

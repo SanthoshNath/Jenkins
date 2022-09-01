@@ -37,3 +37,9 @@ variable "ingress_cidr_blocks_for_jenkins_port" {
   type     = list(string)
   nullable = false
 }
+
+variable "expose_jenkins_url" {
+  default  = false
+  type     = bool
+  nullable = false
+}

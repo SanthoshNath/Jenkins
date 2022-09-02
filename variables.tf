@@ -32,14 +32,14 @@ variable "jenkins_port" {
   nullable = false
 }
 
-variable "ingress_cidr_blocks_for_jenkins_port" {
-  default  = ["0.0.0.0/0"]
-  type     = list(string)
+variable "expose_jenkins_url" {
+  default  = true
+  type     = bool
   nullable = false
 }
 
-variable "expose_jenkins_url" {
-  default  = false
-  type     = bool
+variable "ingress_cidr_blocks_for_jenkins_port" {
+  default  = ["0.0.0.0/0"]
+  type     = list(string)
   nullable = false
 }

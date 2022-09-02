@@ -1,3 +1,3 @@
 output "jenkins_url" {
-  value = "${aws_instance.jenkins_instance.public_dns}:8080"
+  value = "http://${aws_instance.jenkins_instance.public_dns}:${var.jenkins_port}"
 }

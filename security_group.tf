@@ -1,5 +1,6 @@
 resource "aws_security_group" "jenkins_security_group" {
-  name = "Jenkins security group"
+  name   = "Jenkins security group"
+  vpc_id = aws_vpc.jenkins_vpc.id
 
   egress {
     from_port   = 0
@@ -12,7 +13,7 @@ resource "aws_security_group" "jenkins_security_group" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [local.myIP]
+    cidr_blocks = var.enable_ec2_instance_connect ? concat([local.myIP], data.aws_ip_ranges.ec2_connect_ip_ranges[0].cidr_blocks) : [local.myIP]
   }
 
   ingress {

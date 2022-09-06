@@ -27,7 +27,7 @@ variable "instance_type" {
 }
 
 variable "enable_ec2_instance_connect" {
-  default  = false
+  default  = true
   type     = bool
   nullable = false
 }

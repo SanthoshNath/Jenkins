@@ -3,9 +3,9 @@ name: Terraform
 on:
   push:
     branches: [ "master" ]
-    paths-ignore: [ '.github/workflows/tfsec.yml' ]
+    paths-ignore: [ '.github/workflows/tfsec.yml', 'README.md' ]
   pull_request:
-    paths-ignore: [ '.github/workflows/tfsec.yml' ]
+    paths-ignore: [ '.github/workflows/tfsec.yml', 'README.md' ]
 
 jobs:
   Validate:

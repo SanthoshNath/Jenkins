@@ -1,0 +1,31 @@
+name: Terraform
+
+on:
+  push:
+    branches: [ "master" ]
+    paths-ignore: [ '.github/workflows/tfsec.yml' ]
+  pull_request:
+    paths-ignore: [ '.github/workflows/tfsec.yml' ]
+
+jobs:
+  Validate:
+    runs-on: ubuntu-latest
+    env:
+      TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate

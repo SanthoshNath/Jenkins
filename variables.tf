@@ -9,6 +9,16 @@ variable "path_to_public_key" {
   sensitive = true
 }
 
+variable "vpc_cidr_block" {
+  type     = string
+  nullable = false
+}
+
+variable "vpc_public_subnet_cidr_block" {
+  type     = string
+  nullable = false
+}
+
 variable "instance_ami" {
   default  = "ami-06489866022e12a14"
   type     = string

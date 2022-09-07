@@ -1,5 +1,5 @@
 resource "aws_vpc" "jenkins_vpc" {
-  cidr_block           = "10.0.0.0/28"
+  cidr_block           = var.vpc_cidr_block
   instance_tenancy     = "default"
   enable_dns_hostnames = "true"
 
@@ -10,7 +10,7 @@ resource "aws_vpc" "jenkins_vpc" {
 
 resource "aws_subnet" "jenkins_vpc_public_subnet" {
   vpc_id                  = aws_vpc.jenkins_vpc.id
-  cidr_block              = "10.0.0.0/28"
+  cidr_block              = var.vpc_public_subnet_cidr_block
   map_public_ip_on_launch = "true"
   availability_zone       = data.aws_availability_zones.current_availability_zones.names[0]
 

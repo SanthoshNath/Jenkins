@@ -2,10 +2,19 @@ name: Terraform
 
 on:
   push:
-    branches: [ "master" ]
-    paths-ignore: [ '.github/workflows/*.yml', '!.github/workflows/terraform.yml', 'README.md' ]
+    branches:
+      - 'master'
+    paths-ignore:
+      - '.github/workflows/*.yml'
+      - '!.github/workflows/terraform.yml'
+      - 'README.md'
   pull_request:
-    paths-ignore: [ '.github/workflows/*.yml', '!.github/workflows/terraform.yml', 'README.md' ]
+    branches:
+      - 'master'
+    paths-ignore:
+      - '.github/workflows/*.yml'
+      - '!.github/workflows/terraform.yml'
+      - 'README.md'
 
 jobs:
   Validate:

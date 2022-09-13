@@ -2,10 +2,19 @@ name: tfsec
 
 on:
   push:
-    branches: [ "master" ]
-    paths-ignore: [ '.github/workflows/*.yml', '!.github/workflows/tfsec.yml', 'README.md' ]
+    branches:
+      - 'master'
+    paths-ignore:
+      - '.github/workflows/*.yml'
+      - '!.github/workflows/tfsec.yml'
+      - 'README.md'
   pull_request:
-    paths-ignore: [ '.github/workflows/*.yml', '!.github/workflows/tfsec.yml', 'README.md' ]
+    branches:
+      - 'master'
+    paths-ignore:
+      - '.github/workflows/*.yml'
+      - '!.github/workflows/tfsec.yml'
+      - 'README.md'
 
 jobs:
   tfsec:

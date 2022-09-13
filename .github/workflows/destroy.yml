@@ -20,7 +20,7 @@ jobs:
       - name: Terraform Init
         run: terraform init -input=false
 
-      - name: Terraform Destroy
+      - name: Terraform Plan
         run: terraform plan -destroy -input=false
 
       - name: Cache repository
@@ -36,6 +36,7 @@ jobs:
 
     steps:
       - name: Terraform cache
+        id: cache
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}
@@ -45,7 +46,11 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Terraform Apply
+      - name: Terraform Init
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: terraform init -input=false
+
+      - name: Terraform Destroy
         run: terraform destroy --auto-approve -input=false
 
   Cleanup:

@@ -3,15 +3,14 @@ name: Destroy
 on:
   workflow_dispatch:
 
-env:
-  TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
-
 jobs:
   Plan:
     runs-on: ubuntu-latest
+    env:
+      TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: hashicorp/setup-terraform@v2
         with:
@@ -33,6 +32,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: Terraform
     needs: Plan
+    env:
+      TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
 
     steps:
       - name: Terraform cache
@@ -41,6 +42,9 @@ jobs:
         with:
           path: ${{ github.workspace }}
           key: ${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
+
+      - uses: actions/checkout@v3
+        if: steps.cache.outputs.cache-hit != 'true'
 
       - uses: hashicorp/setup-terraform@v2
         with:

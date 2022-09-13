@@ -23,7 +23,7 @@ jobs:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: hashicorp/setup-terraform@v2
         with:
@@ -66,6 +66,9 @@ jobs:
         with:
           path: ${{ github.workspace }}
           key: ${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
+
+      - uses: actions/checkout@v3
+        if: steps.cache.outputs.cache-hit != 'true'
 
       - uses: hashicorp/setup-terraform@v2
         with:
@@ -135,6 +138,16 @@ jobs:
               })
             }
 
+      - name: Delete unused cache
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          gh api \
+            --method DELETE \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/actions/caches?key=${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
+
   Apply:
     runs-on: ubuntu-latest
     environment: Terraform
@@ -151,6 +164,9 @@ jobs:
           path: ${{ github.workspace }}
           key: ${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
 
+      - uses: actions/checkout@v3
+        if: steps.cache.outputs.cache-hit != 'true'
+
       - uses: hashicorp/setup-terraform@v2
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
@@ -161,6 +177,16 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply --auto-approve -input=false
+
+      - name: Delete unused cache
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          gh api \
+            --method DELETE \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/actions/caches?key=${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
 
   Cleanup:
     runs-on: ubuntu-latest

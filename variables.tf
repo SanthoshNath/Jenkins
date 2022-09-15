@@ -3,12 +3,6 @@ variable "aws_region" {
   nullable = false
 }
 
-variable "path_to_public_key" {
-  type      = string
-  nullable  = false
-  sensitive = true
-}
-
 variable "vpc_cidr_block" {
   type     = string
   nullable = false
@@ -40,12 +34,6 @@ variable "enable_ec2_instance_connect" {
 variable "jenkins_port" {
   default  = 8080
   type     = number
-  nullable = false
-}
-
-variable "expose_jenkins_url" {
-  default  = true
-  type     = bool
   nullable = false
 }
 

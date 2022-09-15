@@ -6,30 +6,23 @@ Deploy Jenkins to AWS EC2 instance.
 
 ### Initial setup
 
-1. Generate ssh key pairs
+1. Export environment variables
 
    ```bash
-   ssh-keygen -t ed25519 -f <PATH>
+   export TF_CLOUD_ORGANIZATION=<Organisation name>
+   export AWS_PROFILE=<AWS profile name>
    ```
 
-2. Create EC2 instance and deploy Jenkins
-    1. Export environment variables
+   **Add above lines to `~/.bash_profile` or `~/.profile` to export environment variables in all terminal sessions**
 
-        ```bash
-        export TF_CLOUD_ORGANIZATION=<Organisation name>
-        export AWS_PROFILE=<AWS profile name>
-        ```
+2. Terraform
 
-        **Add above lines to `~/.bash_profile` or `~/.profile` to export environment variables in all terminal sessions**
-
-    2. Terraform
-
-        ```bash
-        terraform init
-        ```
+    ```bash
+    terraform init
+    ```
 
 ### Deploy
 
 ```bash
-terraform apply -var aws_region=<AWS REGION> -var path_to_public_key=<PATH TO PUBLIC KEY>
+terraform apply -var aws_region=<AWS REGION> -var vpc_cidr_block=<VPC CIDR BLOCK> -var vpc_public_subnet_cidr_block=<PUBLIC SUBNET CIDR BLOCK>
 ```

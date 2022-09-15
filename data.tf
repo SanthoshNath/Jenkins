@@ -7,7 +7,3 @@ data "aws_ip_ranges" "ec2_connect_ip_ranges" {
   regions  = [var.aws_region]
   services = ["ec2_instance_connect"]
 }
-
-data "http" "my_IP" {
-  url = "https://ipv4.icanhazip.com"
-}

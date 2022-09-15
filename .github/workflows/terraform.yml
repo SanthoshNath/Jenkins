@@ -80,7 +80,7 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -input=false
+        run: terraform plan -out=tfplan -input=false
 
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
@@ -141,12 +141,17 @@ jobs:
       - name: Delete unused cache
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           gh api \
             --method DELETE \
             -H "Accept: application/vnd.github+json" \
             /repos/${{ github.repository }}/actions/caches?key=${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
+
+      - name: Cache repository
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}
+          key: ${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
 
   Apply:
     runs-on: ubuntu-latest
@@ -178,21 +183,11 @@ jobs:
         run: terraform init -input=false
 
       - name: Terraform Apply
-        run: terraform apply --auto-approve -input=false
+        run: terraform apply -input=false tfplan
 
       - name: Terraform Output
         id: output
         run: terraform output -raw jenkins_url
-
-      - name: Delete unused cache
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          gh api \
-            --method DELETE \
-            -H "Accept: application/vnd.github+json" \
-            /repos/${{ github.repository }}/actions/caches?key=${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
 
   Cleanup:
     runs-on: ubuntu-latest
@@ -208,3 +203,4 @@ jobs:
             --method DELETE \
             -H "Accept: application/vnd.github+json" \
             /repos/${{ github.repository }}/actions/caches?key=${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
+        continue-on-error: true

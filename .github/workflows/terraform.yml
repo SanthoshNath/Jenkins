@@ -35,17 +35,11 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Init
-        run: terraform init -input=false
+        run: terraform init -backend=false
 
       - name: Terraform Validate
         id: validate
         run: terraform validate
-
-      - name: Cache repository
-        uses: actions/cache@v3
-        with:
-          path: ${{ github.workspace }}
-          key: ${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
 
     outputs:
       fmt_outcome: ${{ steps.fmt.outcome }}
@@ -60,22 +54,13 @@ jobs:
     if: ${{ false }}
 
     steps:
-      - name: Terraform cache
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ github.workspace }}
-          key: ${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
-
       - uses: actions/checkout@v3
-        if: steps.cache.outputs.cache-hit != 'true'
 
       - uses: hashicorp/setup-terraform@v2
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform Init
-        if: steps.cache.outputs.cache-hit != 'true'
         run: terraform init -input=false
 
       - name: Terraform Plan
@@ -138,20 +123,12 @@ jobs:
               })
             }
 
-      - name: Delete unused cache
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api \
-            --method DELETE \
-            -H "Accept: application/vnd.github+json" \
-            /repos/${{ github.repository }}/actions/caches?key=${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
-
       - name: Cache repository
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}
           key: ${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
+        continue-on-error: true
 
   Apply:
     runs-on: ubuntu-latest
@@ -170,6 +147,7 @@ jobs:
         with:
           path: ${{ github.workspace }}
           key: ${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
+        continue-on-error: true
 
       - uses: actions/checkout@v3
         if: steps.cache.outputs.cache-hit != 'true'

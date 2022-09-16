@@ -20,13 +20,14 @@ jobs:
         run: terraform init -input=false
 
       - name: Terraform Plan
-        run: terraform plan -destroy -input=false
+        run: terraform plan -destroy -out=tfplan -input=false
 
       - name: Cache repository
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}
           key: ${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
+        continue-on-error: true
 
   Destroy:
     runs-on: ubuntu-latest
@@ -42,6 +43,7 @@ jobs:
         with:
           path: ${{ github.workspace }}
           key: ${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
+        continue-on-error: true
 
       - uses: actions/checkout@v3
         if: steps.cache.outputs.cache-hit != 'true'
@@ -55,7 +57,7 @@ jobs:
         run: terraform init -input=false
 
       - name: Terraform Destroy
-        run: terraform destroy --auto-approve -input=false
+        run: terraform apply -input=false tfplan
 
   Cleanup:
     runs-on: ubuntu-latest
@@ -71,3 +73,4 @@ jobs:
             --method DELETE \
             -H "Accept: application/vnd.github+json" \
             /repos/${{ github.repository }}/actions/caches?key=${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
+        continue-on-error: true

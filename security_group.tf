@@ -10,18 +10,12 @@ resource "aws_security_group" "jenkins_security_group" {
   }
 
   dynamic "ingress" {
-    for_each = var.enable_ec2_instance_connect ? [
-      {
-        port        = 22
-        protocol    = "tcp"
-        cidr_blocks = data.aws_ip_ranges.ec2_connect_ip_ranges[0].cidr_blocks
-      }
-    ] : []
+    for_each = var.enable_ec2_instance_connect ? [data.aws_ip_ranges.ec2_connect_ip_ranges[0].cidr_blocks] : []
     content {
-      from_port   = ingress.value["port"]
-      to_port     = ingress.value["port"]
-      protocol    = ingress.value["protocol"]
-      cidr_blocks = ingress.value["cidr_blocks"]
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = ingress.value
     }
   }
 

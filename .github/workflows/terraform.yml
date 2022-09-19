@@ -2,8 +2,6 @@ name: Terraform
 
 on:
   push:
-    branches:
-      - 'master'
     paths-ignore:
       - '.github/**.yml'
       - '!.github/workflows/terraform.yml'
@@ -15,12 +13,14 @@ on:
       - '.github/**.yml'
       - '!.github/workflows/terraform.yml'
       - 'README.md'
+  workflow_dispatch:
 
 jobs:
   Validate:
     runs-on: ubuntu-latest
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
+    if: contains(fromJson('["push", "pull_request"]'), github.event_name)
 
     steps:
       - uses: actions/checkout@v3
@@ -51,7 +51,6 @@ jobs:
     needs: Validate
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
-    if: ${{ false }}
 
     steps:
       - uses: actions/checkout@v3
@@ -65,7 +64,7 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -out=tfplan -input=false
+        run: terraform plan -input=false
 
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
@@ -138,7 +137,7 @@ jobs:
     needs: Plan
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
-    if: ${{ false }}
+    if: contains(fromJson('["push", "workflow_dispatch"]'), github.event_name) && github.event.ref == 'refs/heads/master'
 
     steps:
       - name: Terraform cache
@@ -161,7 +160,7 @@ jobs:
         run: terraform init -input=false
 
       - name: Terraform Apply
-        run: terraform apply -input=false tfplan
+        run: terraform apply -auto-approve -input=false
 
       - name: Terraform Output
         id: output

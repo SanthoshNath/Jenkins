@@ -1,13 +1,13 @@
 name: Destroy
 
-on:
-  workflow_dispatch:
+on: workflow_dispatch
 
 jobs:
   Plan:
     runs-on: ubuntu-latest
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
+    if: github.event.ref == 'refs/heads/master'
 
     steps:
       - uses: actions/checkout@v3
@@ -20,7 +20,7 @@ jobs:
         run: terraform init -input=false
 
       - name: Terraform Plan
-        run: terraform plan -destroy -out=tfplan -input=false
+        run: terraform plan -destroy -input=false
 
       - name: Cache repository
         uses: actions/cache@v3
@@ -31,10 +31,11 @@ jobs:
 
   Destroy:
     runs-on: ubuntu-latest
-    environment: Terraform
+    environment: Jenkins
     needs: Plan
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
+    if: github.event.ref == 'refs/heads/master'
 
     steps:
       - name: Terraform cache
@@ -57,7 +58,7 @@ jobs:
         run: terraform init -input=false
 
       - name: Terraform Destroy
-        run: terraform apply -input=false tfplan
+        run: terraform destroy -auto-approve -input=false
 
   Cleanup:
     runs-on: ubuntu-latest

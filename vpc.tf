@@ -35,7 +35,7 @@ resource "aws_route_table" "jenkins_vpc_route_table" {
   }
 
   tags = {
-    Name = "main-public-1"
+    Name = "jenkins_vpc_route_table"
   }
 }
 

@@ -10,7 +10,8 @@ locals {
         },
         "Action" : "sts:AssumeRole"
       }
-  }))
+    }
+  ))
 }
 
 resource "aws_instance" "jenkins_instance" {
@@ -20,6 +21,15 @@ resource "aws_instance" "jenkins_instance" {
   vpc_security_group_ids = [aws_security_group.jenkins_security_group.id]
   user_data              = templatefile("${path.module}/user_data.tftpl", {})
   iam_instance_profile   = aws_iam_instance_profile.jenkins_iam_instance_profile.name
+
+  root_block_device {
+    encrypted = true
+  }
+
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
 
   tags = {
     Name = "jenkins_instance"

@@ -8,6 +8,8 @@ on:
       - '.github/**.yml'
       - '!.github/workflows/tfsec.yml'
       - 'README.md'
+  schedule:
+    - cron: '0 6 1 * *'
 
 jobs:
   tfsec:

@@ -25,12 +25,6 @@ variable "instance_type" {
   nullable = false
 }
 
-variable "enable_ec2_instance_connect" {
-  default  = true
-  type     = bool
-  nullable = false
-}
-
 variable "jenkins_port" {
   default  = 8080
   type     = number

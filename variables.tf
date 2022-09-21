@@ -8,9 +8,20 @@ variable "vpc_cidr_block" {
   nullable = false
 }
 
-variable "vpc_public_subnet_cidr_block" {
-  type     = string
+variable "public_subnets_count" {
+  default  = 2
+  type     = number
   nullable = false
+
+  validation {
+    condition     = var.public_subnets_count % 1 == 0
+    error_message = "Number of public subnets should be a whole number"
+  }
+
+  validation {
+    condition     = var.public_subnets_count > 1
+    error_message = "Minimum of two public subnets are required"
+  }
 }
 
 variable "instance_ami" {
@@ -29,6 +40,11 @@ variable "jenkins_port" {
   default  = 8080
   type     = number
   nullable = false
+
+  validation {
+    condition     = var.jenkins_port % 1 == 0
+    error_message = "Port number should be a whole number"
+  }
 }
 
 variable "ingress_cidr_blocks_for_jenkins_port" {

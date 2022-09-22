@@ -1,0 +1,48 @@
+name: Validate
+
+on:
+  push:
+    paths-ignore:
+      - '.github/**.yml'
+      - '!.github/workflows/validate.yml'
+      - 'README.md'
+  pull_request:
+    branches:
+      - 'master'
+    paths-ignore:
+      - '.github/**.yml'
+      - '!.github/workflows/validate.yml'
+      - 'README.md'
+
+jobs:
+  Validate:
+    runs-on: ubuntu-latest
+    env:
+      TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Init
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
+
+  Terraform:
+    needs: Validate
+    uses: ./.github/workflows/terraform.yml
+    with:
+      event_name: ${{ github.event_name }}
+    secrets: inherit
+    if: github.event.ref == 'refs/heads/master' && false

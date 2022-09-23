@@ -1,9 +1,9 @@
-resource "aws_lb" "jenkins_lb" {
+resource "aws_lb" "jenkins" {
   name                             = "jenkins-lb"
   internal                         = false
   load_balancer_type               = "application"
-  subnets                          = [for subnet in aws_subnet.jenkins_public_subnet : subnet.id]
-  security_groups                  = [aws_security_group.jenkins_lb_security_group.id]
+  subnets                          = [for subnet in aws_subnet.jenkins_public : subnet.id]
+  security_groups                  = [aws_security_group.jenkins_lb.id]
   enable_cross_zone_load_balancing = true
   drop_invalid_header_fields       = true
 
@@ -12,21 +12,21 @@ resource "aws_lb" "jenkins_lb" {
   }
 }
 
-resource "aws_lb_target_group" "jenkins_lb_target_group" {
+resource "aws_lb_target_group" "jenkins" {
   name     = "jenkins-lb-target-group"
   port     = 80
   protocol = "HTTP"
-  vpc_id   = aws_vpc.jenkins_vpc.id
+  vpc_id   = aws_vpc.jenkins.id
 }
 
-resource "aws_lb_target_group_attachment" "jenkins_lb_target_group_attachment" {
-  target_group_arn = aws_lb_target_group.jenkins_lb_target_group.arn
-  target_id        = aws_instance.jenkins_instance.id
+resource "aws_lb_target_group_attachment" "jenkins" {
+  target_group_arn = aws_lb_target_group.jenkins.arn
+  target_id        = aws_instance.jenkins.id
   port             = var.jenkins_port
 }
 
-resource "aws_lb_listener" "jenkins_lb_listener" {
-  load_balancer_arn = aws_lb.jenkins_lb.arn
+resource "aws_lb_listener" "jenkins" {
+  load_balancer_arn = aws_lb.jenkins.arn
   port              = "80"
   protocol          = "HTTP"
 
@@ -35,7 +35,7 @@ resource "aws_lb_listener" "jenkins_lb_listener" {
 
     forward {
       target_group {
-        arn = aws_lb_target_group.jenkins_lb_target_group.arn
+        arn = aws_lb_target_group.jenkins.arn
       }
 
       stickiness {
@@ -45,9 +45,9 @@ resource "aws_lb_listener" "jenkins_lb_listener" {
   }
 }
 
-resource "aws_security_group" "jenkins_lb_security_group" {
+resource "aws_security_group" "jenkins_lb" {
   name   = "jenkins-lb-security-group"
-  vpc_id = aws_vpc.jenkins_vpc.id
+  vpc_id = aws_vpc.jenkins.id
 
   egress {
     from_port   = 0

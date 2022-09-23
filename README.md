@@ -24,5 +24,5 @@ Deploy Jenkins to AWS EC2 instance.
 ### Deploy
 
 ```bash
-terraform apply -var aws_region=<AWS REGION> -var vpc_cidr_block=<VPC CIDR BLOCK> -var vpc_public_subnet_cidr_block=<PUBLIC SUBNET CIDR BLOCK>
+terraform apply -var aws_region=<AWS REGION> -var vpc_cidr_block=<VPC CIDR BLOCK>
 ```

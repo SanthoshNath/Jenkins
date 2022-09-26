@@ -1,11 +1,13 @@
 name: Terraform
 
 on:
-  workflow_call:
-    inputs:
-      event_name:
-        type: string
-        required: true
+  workflow_run:
+    workflows:
+      - Validate
+    types:
+      - completed
+    branches:
+      - master
   workflow_dispatch:
 
 jobs:
@@ -13,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
-    if: github.event.ref == 'refs/heads/master'
+    if: github.event.workflow_run.conclusion == 'success' || (github.event_name == 'workflow_dispatch' && github.event.ref == 'refs/heads/master')
 
     steps:
       - uses: actions/checkout@v3
@@ -90,7 +92,7 @@ jobs:
     needs: Plan
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
-    if: github.event.ref == 'refs/heads/master'
+    if: github.event.workflow_run.conclusion == 'success' || (github.event_name == 'workflow_dispatch' && github.event.ref == 'refs/heads/master')
 
     steps:
       - name: Terraform cache

@@ -38,11 +38,3 @@ jobs:
       - name: Terraform Validate
         id: validate
         run: terraform validate
-
-  Terraform:
-    needs: Validate
-    uses: ./.github/workflows/terraform.yml
-    with:
-      event_name: ${{ github.event_name }}
-    secrets: inherit
-    if: github.event.ref == 'refs/heads/master' && false

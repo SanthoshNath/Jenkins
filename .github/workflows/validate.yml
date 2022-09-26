@@ -3,16 +3,16 @@ name: Validate
 on:
   push:
     paths-ignore:
-      - '.github/**.yml'
-      - '!.github/workflows/validate.yml'
-      - 'README.md'
+      - ".github/**.yml"
+      - "!.github/workflows/validate.yml"
+      - "README.md"
   pull_request:
     branches:
-      - 'master'
+      - "master"
     paths-ignore:
-      - '.github/**.yml'
-      - '!.github/workflows/validate.yml'
-      - 'README.md'
+      - ".github/**.yml"
+      - "!.github/workflows/validate.yml"
+      - "README.md"
 
 jobs:
   Validate:

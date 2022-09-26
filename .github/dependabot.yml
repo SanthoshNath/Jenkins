@@ -5,3 +5,5 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+      time: "09:00"
+      timezone: "Asia/Kolkata"

@@ -14,7 +14,7 @@ resource "aws_lb" "jenkins" {
 
 resource "aws_lb_target_group" "jenkins" {
   name     = "jenkins-lb-target-group"
-  port     = var.jenkins_port
+  port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.jenkins.id
 }

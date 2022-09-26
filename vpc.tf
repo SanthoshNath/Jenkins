@@ -23,7 +23,7 @@ resource "aws_subnet" "jenkins_public" {
   availability_zone       = count.index < local.availability_zones_count ? data.aws_availability_zones.available.names[count.index] : data.aws_availability_zones.available.names[count.index % local.availability_zones_count]
 
   tags = {
-    Name = "jenkins_public_subnet"
+    Name = "jenkins_public_subnet_${count.index + 1}"
   }
 }
 

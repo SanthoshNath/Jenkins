@@ -10,12 +10,14 @@ on:
       - master
   workflow_dispatch:
 
+concurrency: ${{ github.workflow }}
+
 jobs:
   Plan:
     runs-on: ubuntu-latest
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
-    if: github.event.workflow_run.conclusion == 'success' || (github.event_name == 'workflow_dispatch' && github.event.ref == 'refs/heads/master')
+    if: github.event.workflow_run.conclusion != 'failure' && github.ref_name == 'master'
 
     steps:
       - uses: actions/checkout@v3
@@ -95,7 +97,7 @@ jobs:
     needs: Plan
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
-    if: github.event.workflow_run.conclusion == 'success' || (github.event_name == 'workflow_dispatch' && github.event.ref == 'refs/heads/master')
+    if: github.event.workflow_run.conclusion != 'failure' && github.ref_name == 'master'
 
     steps:
       - name: Terraform cache
@@ -127,7 +129,7 @@ jobs:
   Cleanup:
     runs-on: ubuntu-latest
     needs: [ Plan, Apply ]
-    if: always()
+    if: always() && github.ref_name == 'master'
 
     steps:
       - name: Delete cache

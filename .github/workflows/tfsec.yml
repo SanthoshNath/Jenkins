@@ -8,8 +8,11 @@ on:
       - ".github/**.yml"
       - "!.github/workflows/tfsec.yml"
       - "README.md"
+      - ".gitignore"
   schedule:
     - cron: "0 6 1 * *"
+
+concurrency: ${{ github.workflow }}
 
 jobs:
   tfsec:

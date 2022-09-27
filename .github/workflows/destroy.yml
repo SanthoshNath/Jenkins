@@ -2,12 +2,14 @@ name: Destroy
 
 on: workflow_dispatch
 
+concurrency: ${{ github.workflow }}
+
 jobs:
   Plan:
     runs-on: ubuntu-latest
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
-    if: github.event.ref == 'refs/heads/master'
+    if: github.ref_name == 'master'
 
     steps:
       - uses: actions/checkout@v3
@@ -35,7 +37,7 @@ jobs:
     needs: Plan
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
-    if: github.event.ref == 'refs/heads/master'
+    if: github.ref_name == 'master'
 
     steps:
       - name: Terraform cache
@@ -63,7 +65,7 @@ jobs:
   Cleanup:
     runs-on: ubuntu-latest
     needs: [ Plan, Destroy ]
-    if: always()
+    if: always() && github.ref_name == 'master'
 
     steps:
       - name: Delete cache

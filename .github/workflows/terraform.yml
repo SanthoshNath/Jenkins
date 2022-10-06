@@ -1,16 +1,35 @@
 name: Terraform
 
 on:
+  push:
+    paths-ignore:
+      - ".github/**.yml"
+      - "!.github/workflows/terraform.yml"
+      - "README.md"
+      - ".gitignore"
+  pull_request:
+    branches:
+      - "master"
+    paths-ignore:
+      - ".github/**.yml"
+      - "!.github/workflows/terraform.yml"
+      - "README.md"
+      - ".gitignore"
   workflow_dispatch:
+    inputs:
+      skip_plan:
+        description: 'Skip plan'
+        required: true
+        type: boolean
 
-concurrency: ${{ github.workflow }}
+concurrency: ${{ github.ref }}
 
 jobs:
   Plan:
     runs-on: ubuntu-latest
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
-    if: github.ref_name == 'master'
+    if: inputs.skip_plan != 'true'
 
     steps:
       - uses: actions/checkout@v3
@@ -19,6 +38,11 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
       - name: Terraform Init
         id: init
         run: terraform init
@@ -26,6 +50,56 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: terraform plan -input=false
+
+      - uses: actions/github-script@v6
+        env:
+          PLAN: "${{ steps.plan.outputs.stdout }}"
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            // 1. Retrieve existing bot comments for the PR
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes('Terraform Format and Style')
+            })
+            
+            // 2. Prepare format of the comment
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            
+            <details><summary>Show Plan</summary>
+            
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+            
+            </details>
+            
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            
+            // 3. If we have a comment, update it, otherwise create a new one
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }
 
       - name: Cache repository
         uses: actions/cache@v3
@@ -42,7 +116,7 @@ jobs:
     needs: Plan
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
-    if: github.ref_name == 'master'
+    if: github.event_name == 'workflow_dispatch' && github.ref_name == 'master' && !(failure() || cancelled())
 
     steps:
       - name: Terraform cache
@@ -73,8 +147,8 @@ jobs:
 
   Cleanup:
     runs-on: ubuntu-latest
-    needs: [ Plan, Apply ]
-    if: always() && github.ref_name == 'master'
+    needs: Apply
+    if: always()
 
     steps:
       - name: Delete cache

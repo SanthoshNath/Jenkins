@@ -2,10 +2,12 @@ name: Terraform
 
 on:
   push:
+    branches:
+      - "master"
     paths-ignore:
       - ".github/**.yml"
       - "!.github/workflows/terraform.yml"
-      - "README.md"
+      - "**.md"
       - ".gitignore"
   pull_request:
     branches:
@@ -13,14 +15,8 @@ on:
     paths-ignore:
       - ".github/**.yml"
       - "!.github/workflows/terraform.yml"
-      - "README.md"
+      - "**.md"
       - ".gitignore"
-  workflow_dispatch:
-    inputs:
-      skip_plan:
-        description: 'Skip plan'
-        required: true
-        type: boolean
 
 concurrency: ${{ github.ref }}
 
@@ -29,7 +25,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
-    if: inputs.skip_plan != 'true'
 
     steps:
       - uses: actions/checkout@v3
@@ -49,7 +44,13 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -input=false
+        run: |
+          if [[ ${{ github.event_name }} == pull_request ]]
+          then
+            terraform plan -input=false -no-color
+          else
+            terraform plan -input=false
+          fi
 
       - uses: actions/github-script@v6
         env:
@@ -116,7 +117,7 @@ jobs:
     needs: Plan
     env:
       TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
-    if: github.event_name == 'workflow_dispatch' && github.ref_name == 'master' && !(failure() || cancelled())
+    if: github.event_name == 'push' && false
 
     steps:
       - name: Terraform cache
@@ -143,7 +144,7 @@ jobs:
 
       - name: Terraform Output
         id: output
-        run: terraform output -raw url
+        run: terraform output -raw jenkins_url
 
   Cleanup:
     runs-on: ubuntu-latest
@@ -153,7 +154,7 @@ jobs:
     steps:
       - name: Delete cache
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh api \
             --method DELETE \

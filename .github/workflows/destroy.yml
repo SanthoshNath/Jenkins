@@ -28,7 +28,9 @@ jobs:
       - name: Cache repository
         uses: actions/cache@v3
         with:
-          path: ${{ github.workspace }}
+          path: |
+            .terraform/
+            .terraform.lock.hcl
           key: ${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
         continue-on-error: true
 
@@ -41,16 +43,17 @@ jobs:
     if: contains(fromJson('["master"]'), github.ref_name) && !(failure() || cancelled())
 
     steps:
+      - uses: actions/checkout@v3
+
       - name: Terraform cache
         id: cache
         uses: actions/cache@v3
         with:
-          path: ${{ github.workspace }}
+          path: |
+            .terraform/
+            .terraform.lock.hcl
           key: ${{ github.repository }}-${{ github.sha }}-${{ runner.os }}
         continue-on-error: true
-
-      - uses: actions/checkout@v3
-        if: steps.cache.outputs.cache-hit != 'true'
 
       - uses: hashicorp/setup-terraform@v2
         with:

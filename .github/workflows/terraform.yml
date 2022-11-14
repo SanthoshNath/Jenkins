@@ -46,7 +46,7 @@ jobs:
           path: |
             .terraform/
             .terraform.lock.hcl
-          key: ${{ github.workflow }}-terraform-${{ github.run_id }}
+          key: terraform-${{ github.run_id }}
         continue-on-error: true
 
       - name: Terraform Init
@@ -118,7 +118,7 @@ jobs:
           path: |
             .terraform/
             .terraform.lock.hcl
-          key: ${{ github.workflow }}-terraform-${{ github.run_id }}
+          key: terraform-${{ github.run_id }}
         continue-on-error: true
 
   Apply:
@@ -141,7 +141,7 @@ jobs:
           path: |
             .terraform/
             .terraform.lock.hcl
-          key: ${{ github.workflow }}-terraform-${{ github.run_id }}
+          key: terraform-${{ github.run_id }}
         continue-on-error: true
 
       - uses: hashicorp/setup-terraform@v2

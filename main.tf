@@ -1,5 +1,5 @@
 module "ec2" {
-  source = "github.com/SanthoshNath/EC2?ref=v1.1"
+  source = "github.com/benzene-tech/ec2?ref=v1.1"
 
   vpc_cidr_block       = var.vpc_cidr_block
   instance_ami         = var.instance_ami

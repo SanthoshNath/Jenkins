@@ -1,0 +1,81 @@
+name: Infrastructure
+
+on:
+  push:
+    branches:
+      - "main"
+    paths-ignore:
+      - ".github/**.yml"
+      - "!.github/workflows/infrastructure.yml"
+      - "**.md"
+      - ".gitignore"
+  pull_request:
+    branches:
+      - "main"
+    paths-ignore:
+      - ".github/**.yml"
+      - "!.github/workflows/infrastructure.yml"
+      - "**.md"
+      - ".gitignore"
+  workflow_dispatch:
+
+concurrency: infrastructure-${{ github.ref }}
+
+jobs:
+  Plan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Restore cache
+        id: restore
+        uses: actions/cache@v3
+        with:
+          path: |
+            .terraform/
+            .terraform.lock.hcl
+          key: terraform-${{ github.sha }}
+
+      - name: Plan
+        uses: benzene-tech/terraform-plan@v1
+        with:
+          terraform_cloud_token: ${{ secrets.TF_API_TOKEN }}
+          skip_init: ${{ steps.restore.outputs.cache-hit }}
+
+  Apply:
+    runs-on: ubuntu-latest
+    environment:
+      name: Infra
+      url: ${{ steps.output.outputs.stdout }}
+    needs: Plan
+    env:
+      TF_IN_AUTOMATION: "1"
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Restore cache
+        id: restore
+        uses: actions/cache@v3
+        with:
+          path: |
+            .terraform/
+            .terraform.lock.hcl
+          key: terraform-${{ github.sha }}
+
+      - name: Init
+        if: steps.restore.outputs.cache-hit != 'true'
+        run: terraform init
+
+      - name: Apply
+        run: terraform apply -auto-approve -input=false
+
+      - name: Output
+        id: output
+        run: terraform output -raw jenkins_url
